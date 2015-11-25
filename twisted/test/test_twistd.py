@@ -1121,8 +1121,9 @@ def _setupSyslog(testCase):
     logMessages = []
 
     class fakesyslogobserver(object):
-        def __init__(self, prefix):
+        def __init__(self, prefix, facility=None):
             logMessages.append(prefix)
+            logMessages.append(facility)
 
         def emit(self, eventDict):
             logMessages.append(eventDict)
@@ -1457,12 +1458,27 @@ class UnixAppLoggerTests(unittest.TestCase):
         logs = _setupSyslog(self)
         logger = UnixAppLogger({"syslog": True, "prefix": "test-prefix"})
         observer = logger._getLogObserver()
-        self.assertEqual(logs, ["test-prefix"])
+        self.assertEqual(logs, ["test-prefix", syslog.DEFAULT_FACILITY])
         observer({"a": "b"})
-        self.assertEqual(logs, ["test-prefix", {"a": "b"}])
+        self.assertEqual(logs, ["test-prefix", syslog.DEFAULT_FACILITY, {"a": "b"}])
+
+    def test_getLogObserverSyslogCustomFacility(self):
+        """
+        If C{syslog} is set to C{True} and facility is not C{None}, 
+        L{UnixAppLogger._getLogObserver} starts
+        a L{syslog.SyslogObserver} with given C{prefix} and C{facility}.
+        """
+        logs = _setupSyslog(self)
+        logger = UnixAppLogger({"syslog": True, "prefix": "test-prefix", "facility": 152})
+        self.assertNotEqual(syslog.DEFAULT_FACILITY, logger._syslogFacility)
+        observer = logger._getLogObserver()
+        self.assertEqual(logs, ["test-prefix", 152])
+        observer({"a": "b"})
+        self.assertEqual(logs, ["test-prefix", 152, {"a": "b"}])
 
     if syslog is None:
         test_getLogObserverSyslog.skip = "Syslog not available"
+        test_getLogObserverSyslogCustomFacility.skip = "Syslog not available"
 
 
 

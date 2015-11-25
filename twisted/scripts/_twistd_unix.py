@@ -8,7 +8,7 @@ import errno
 import os
 import sys
 
-from twisted.python import log, logfile, usage
+from twisted.python import log, logfile, usage, syslog
 from twisted.python.compat import intToBytes
 from twisted.python.util import (
     switchUID, uidFromString, gidFromString, untilConcludes)
@@ -53,6 +53,8 @@ class ServerOptions(app.ServerOptions):
                      ['gid', 'g', None, "The gid to run as.", gidFromString],
                      ['umask', None, None,
                       "The (octal) file creation mask to apply.", _umask],
+                     ['facility', None, syslog.DEFAULT_FACILITY, 
+                     "use the given facility when syslogging"],
                     ]
 
     compData = usage.Completions(
@@ -126,6 +128,8 @@ class UnixAppLogger(app.AppLogger):
         app.AppLogger.__init__(self, options)
         self._syslog = options.get("syslog", False)
         self._syslogPrefix = options.get("prefix", "")
+        self._syslogFacility = int(options.get("facility", 
+            syslog.DEFAULT_FACILITY))
         self._nodaemon = options.get("nodaemon", False)
 
 
@@ -144,7 +148,8 @@ class UnixAppLogger(app.AppLogger):
             # FIXME: Requires twisted.python.syslog to be ported to Py3
             # https://twistedmatrix.com/trac/ticket/7957
             from twisted.python import syslog
-            return syslog.SyslogObserver(self._syslogPrefix).emit
+            return syslog.SyslogObserver(self._syslogPrefix, 
+                facility=self._syslogFacility).emit
 
         if self._logfilename == '-':
             if not self._nodaemon:
