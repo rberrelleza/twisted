@@ -128,7 +128,7 @@ class UnixAppLogger(app.AppLogger):
         app.AppLogger.__init__(self, options)
         self._syslog = options.get("syslog", False)
         self._syslogPrefix = options.get("prefix", "")
-        self._syslogFacility = int(options.get("facility", 
+        self._syslogFacility = int(options.get("syslog-facility", 
             syslog.DEFAULT_FACILITY))
         self._nodaemon = options.get("nodaemon", False)
 
