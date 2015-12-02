@@ -1469,7 +1469,7 @@ class UnixAppLoggerTests(unittest.TestCase):
         a L{syslog.SyslogObserver} with given C{prefix} and C{facility}.
         """
         logs = _setupSyslog(self)
-        logger = UnixAppLogger({"syslog": True, "prefix": "test-prefix", "facility": 152})
+        logger = UnixAppLogger({"syslog": True, "prefix": "test-prefix", "syslog-facility": 152})
         self.assertNotEqual(syslog.DEFAULT_FACILITY, logger._syslogFacility)
         observer = logger._getLogObserver()
         self.assertEqual(logs, ["test-prefix", 152])
