@@ -53,8 +53,8 @@ class ServerOptions(app.ServerOptions):
                      ['gid', 'g', None, "The gid to run as.", gidFromString],
                      ['umask', None, None,
                       "The (octal) file creation mask to apply.", _umask],
-                     ['facility', None, syslog.DEFAULT_FACILITY, 
-                     "use the given facility when syslogging"],
+                     ['syslog-facility', None, syslog.DEFAULT_FACILITY, 
+                     "The facility to use when syslog is enabled."],
                     ]
 
     compData = usage.Completions(
